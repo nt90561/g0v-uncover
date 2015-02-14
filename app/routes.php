@@ -13,10 +13,10 @@
 
 Route::get('/', function()
 {
-	return View::make('hello');
+	return View::make('index');
 });
 
 
 Route::group(array('prefix' => 'api/v1'), function() {
-    Route::resource('name', 'NameController');
+    Route::resource('judgements', 'JudgementController');
 });

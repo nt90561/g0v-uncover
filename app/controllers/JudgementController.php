@@ -1,6 +1,6 @@
 <?php
 
-class NameController extends \BaseController {
+class JudgementController extends \BaseController {
 
 	/**
 	 * Display a listing of the resource.
@@ -9,7 +9,41 @@ class NameController extends \BaseController {
 	 */
 	public function index()
 	{
-		//
+		$wheres = array(
+			'name' => Input::get('name'),
+			'court' => Input::get('court'),
+			'year' => Input::get('year'),
+			'case' => Input::get('case'),
+			'no' => Input::get('no'),
+			'date' => array(Input::get('from'), Input::get('to')),
+			'cause' => Input::get('cause')
+		);
+
+		$judgements = new Judgement;
+
+		foreach($wheres as $key => $val) {
+			switch ($key) {
+				case 'date':
+					if($val[0] && $val[1]) {
+						$judgements = $judgements->whereBetween('date', $val);
+					}
+					break;
+
+				default:
+					if($val) {
+						$judgements = $judgements->where($key, 'LIKE' , "%$val%");
+					}
+					break;
+			}
+		}
+
+		$judgements = $judgements->get();
+
+		return Response::json(array(
+        'error' => false,
+        'judgements' => $judgements->toArray()),
+        200
+    	);
 	}
 
 
@@ -41,14 +75,9 @@ class NameController extends \BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($name)
+	public function show($id)
 	{
-		$judges = Judge::where('name', 'LIKE', "%$name%")->get();
-		return Response::json(array(
-        	'success' => true,
-        	'result' => $judges->toArray()),
-        	200
-        );
+		//
 	}
 
 

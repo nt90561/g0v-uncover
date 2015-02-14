@@ -27,15 +27,15 @@
 				line-height: 1em;
 			}
 
-			#search {
+			input:focus {
+				outline: 0;
+			}
+
+			.search input {
 				font-size: 32px;
 				border: none;
 				border-bottom: 2px solid #ccc;
 				background-color: transparent;
-			}
-
-			#search:focus {
-				outline: 0;
 			}
 
 			#search-icon {
@@ -60,7 +60,7 @@
 			}
 
 			footer {
-				position: fixed;
+				position: absolute;
 				top: 0px;
 				width: 100%;
 			}
@@ -68,8 +68,18 @@
 	</head>
 	<body>
 		<h1>UNCOVER<br><small>貪污查詢網站</small></h1>
-		<input id="search" name="search" type="text" placeholder="by Name" autofocus />
-		<a href="javascript: index.fetchResult();"><img id="search-icon" src="images/search.svg" alt="search"></a>
+		<div class="search">
+			<input id="name" name="name" type="text" placeholder="名稱" autofocus />
+			<a href="javascript: index.fetchResult();"><img id="search-icon" src="images/search.svg" alt="search"></a>
+			<!-- <input id="court" name="court" type="text" placeholder="判決法庭" />
+			<input id="year" name="year" type="text" placeholder="年" />
+			<input id="case" name="case" type="text" placeholder="字" />
+			<input id="no" name="no" type="text" placeholder="號" />
+			<input id="from" name="from" type="text" placeholder="判決日期從" />
+			<input id="to" name="to" type="text" placeholder="至" />
+			<input id="cause" name="cause" type="text" placeholder="判決案由" /> -->
+		</div>
+
 		<table id="result-table" class="table">
 			<caption></caption>
 			<thead>
@@ -85,7 +95,7 @@
 			</tbody>
 		</table>
 		<footer>
-			<h4>建置中，目前僅包含民國100~102年地方法院裁判書</h4>
+			<h4>目前僅包含民國100~102年地方法院裁判書</h4>
 		</footer>
 		<!-- Latest compiled and minified JavaScript -->
 		<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -98,7 +108,7 @@
 					this.bindSearchOnOK();
 				},
 				settings: {
-					searchInput: $('#search'),
+					searchInput: $('.search input'),
 					searchIcon: $('#search-icon'),
 					resultTable: $('#result-table'),
 					resultTableCaption: $('#result-table caption'),
@@ -112,28 +122,29 @@
 					s.resultTableThead.hide();
 					s.resultTableTbody.hide();
 
-					var apiUrl = './api/v1/name/' + s.searchInput.val();
+					var apiUrl = './api/v1/judgements?' + s.searchInput.serialize();
 					$.ajax({
 						url: apiUrl,
 						dataType: 'json',
 						success: function(json) {
 							s.resultTableCaption.html('查詢結果');
-							if(json.success && json.result.length) {
+							if(!json.error && json.judgements.length) {
+								console.log(json.error);
 								var innerHtml = '';
-								$.each(json.result, function(i, result) {
+								$.each(json.judgements, function(i, judgements) {
 									innerHtml += '<tr>';
-									innerHtml += '<td>' + result.name + '</td>';
-									innerHtml += '<td>' + result.court + '</td>';
-									innerHtml += '<td>' + result.year + '年' + result.case + '字第'+ result.no + '號</td>';
-									innerHtml += '<td>' + result.date + '</td>';
-									innerHtml += '<td>' + result.cause + '</td>';
+									innerHtml += '<td>' + judgements.name + '</td>';
+									innerHtml += '<td>' + judgements.court + '</td>';
+									innerHtml += '<td>' + judgements.year + '年' + judgements.case + '字第'+ judgements.no + '號</td>';
+									innerHtml += '<td>' + judgements.date + '</td>';
+									innerHtml += '<td>' + judgements.cause + '</td>';
 									innerHtml += '</tr>';
 								});
 								s.resultTableTbody.html(innerHtml);
 								s.resultTableThead.fadeIn('normal');
 								s.resultTableTbody.fadeIn('normal');
 							} else {
-								s.resultTableCaption.html('查無不法，謝謝指教');
+								s.resultTableCaption.html('查無結果');
 							}
 						},
 						error: function() {

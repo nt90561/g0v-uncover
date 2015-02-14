@@ -11,28 +11,15 @@ class DatabaseSeeder extends Seeder {
 	{
 		Eloquent::unguard();
 
-		$this->call('FirstSectionTableSeeder');
+		$this->call('JudgementTableSeeder');
 	}
 
 }
 
-class FirstSectionTableSeeder extends Seeder {
+class JudgementTableSeeder extends Seeder {
 
 	public function run()
 	{
-		if(!Schema::hasTable('judge')) {
-			Schema::create('judge',function($table)
-			{
-				$table->increments('id');
-				$table->string('name');
-				$table->string('court');
-				$table->integer('year');
-				$table->string('case');
-				$table->integer('no');
-				$table->string('date', 7);
-				$table->string('cause');
-			});
-		}
 
 		$name_array;
 		$case_array;
@@ -65,7 +52,7 @@ class FirstSectionTableSeeder extends Seeder {
 				));
 
 				// insert query
-				DB::table('judge')->insert(
+				DB::table('judgements')->insert(
 					array(
 						'name' => $name,
 						'year' => $case_array[0],
